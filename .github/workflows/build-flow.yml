@@ -13,7 +13,7 @@ jobs:
           java-version: '17'
           distribution: 'corretto'
       - name: Build project
-        run: mvn package
+        run: mvn package -Dspring.config.location=config.yml
       - name: Create custom jre
         run: >-
           jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
