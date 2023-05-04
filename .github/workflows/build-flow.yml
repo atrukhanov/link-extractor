@@ -2,10 +2,24 @@ name: Building a bundle from project
 on: workflow_dispatch
 jobs:
   building-bundle:
-    run-on: ubuntu-latest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
       - name: Check mvn version
         run: mvn --version
       - name: Run Test
         run: mvn test
+      - name: Create custom jre
+        run: >-
+          jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
+          --no-man-pages --output jre --add-modules $(cat out/jre-deps.info)
+      - name: Test size
+        run: du -h jre
