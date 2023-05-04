@@ -1,0 +1,11 @@
+name: Building a bundle from project
+on: workflow_dispatch
+jobs:
+  building-bundle:
+    run-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check mvn version
+        run: mvn --version
+      - name: Run Test
+        run: mvn test
