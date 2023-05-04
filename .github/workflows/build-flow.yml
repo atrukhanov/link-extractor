@@ -20,6 +20,6 @@ jobs:
       - name: Create custom jre
         run: >-
           jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
-          --no-man-pages --output jre --add-modules $(cat out/jre-deps.info)
+          --no-man-pages --output jre --add-modules $(cat jre-deps.info)
       - name: Test size
         run: du -h jre
