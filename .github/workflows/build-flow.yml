@@ -25,7 +25,7 @@ jobs:
           cp target/extractor-*.jar .
           zip -r extractor-${{env.RELEASE_VERSION}}.zip jre extractor-start.sh extractor-*.jar application.yml install-yt-dlp.sh
       - name: Create Release
-      - uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1
         with:
           artifacts: extractor-${{env.RELEASE_VERSION}}.zip
           tag: ${{env.RELEASE_VERSION}}
