@@ -13,7 +13,7 @@ jobs:
           java-version: '17'
           distribution: 'corretto'
       - name: Build project
-        run: mvn package -Dspring.config.location=config.yml
+        run: mvn package
       - name: Create custom jre
         run: >-
           jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
@@ -21,8 +21,11 @@ jobs:
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
-        run: >
+        run: |
           cp target/extractor-*.jar .
-          zip -r extractor-${{env.RELEASE_VERSION}}.zip jre extractor-start.sh extractor-*.jar config.yml install-yt-dlp.sh
+          zip -r extractor-${{env.RELEASE_VERSION}}.zip jre extractor-start.sh extractor-*.jar application.yml install-yt-dlp.sh
       - name: Create Release
-        run: ls -a
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: extractor-${{env.RELEASE_VERSION}}.zip
+          tag: ${{env.RELEASE_VERSION}}
