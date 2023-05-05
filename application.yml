@@ -1,0 +1,9 @@
+server:
+  port: 8081
+
+retry-policy:
+  max-attempts: 2
+  back-off-period: 6000
+
+default:
+  channel: "durov"
