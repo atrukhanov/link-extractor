@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-jre/bin/java -jar extractor-*.jar -Dspring.config.location=config.yml
+jre/bin/java -jar extractor-*.jar -Dspring.config.location=application.yml
