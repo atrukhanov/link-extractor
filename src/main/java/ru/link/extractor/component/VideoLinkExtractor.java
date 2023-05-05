@@ -10,38 +10,38 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import ru.link.extractor.model.Response;
 
 @AllArgsConstructor
+@Slf4j
 public class VideoLinkExtractor {
-    private static final Logger log = LoggerFactory.getLogger(VideoLinkExtractor.class);
+
     private Integer maxAttempts;
     private Long backOffPolicy;
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 
     public Response getVideoLink(String link) {
-        this.taskScheduler.initialize();
+        taskScheduler.initialize();
         ProcessBuilder builder = new ProcessBuilder();
-        builder.command("yt-dlp", "-f", "best", "-g", link, "2  >&1");
-        CountDownLatch counter = new CountDownLatch(this.maxAttempts);
+        builder.command("yt-dlp", "-f", "best", "-g", link);
+        CountDownLatch counter = new CountDownLatch(maxAttempts);
         AtomicBoolean isLinkExist = new AtomicBoolean(false);
 
         try {
             Process process = builder.start();
             InputStream inputStream = process.getInputStream();
-            ScheduledFuture<?> future = this.taskScheduler.scheduleWithFixedDelay(() -> {
+            ScheduledFuture<?> future = taskScheduler.scheduleWithFixedDelay(() -> {
                 try {
-                    this.checkData(inputStream, isLinkExist);
+                    checkData(inputStream, isLinkExist);
                     counter.countDown();
-                } catch (IOException var5) {
+                } catch (IOException e) {
                     counter.countDown();
-                    throw new RuntimeException(var5);
+                    throw new RuntimeException(e);
                 }
-            }, Duration.ofMillis(this.backOffPolicy));
-            counter.await((long)this.maxAttempts * this.backOffPolicy, TimeUnit.MILLISECONDS);
+            }, Duration.ofMillis(backOffPolicy));
+            counter.await(maxAttempts * backOffPolicy, TimeUnit.MILLISECONDS);
             future.cancel(true);
             return isLinkExist.get()
                     ? new Response(true, (new String(inputStream.readAllBytes(), StandardCharsets.US_ASCII)).replaceFirst(String.valueOf('\n'), ""))

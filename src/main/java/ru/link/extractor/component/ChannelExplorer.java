@@ -5,10 +5,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -16,15 +15,15 @@ import ru.link.extractor.model.Response;
 
 
 @AllArgsConstructor
+@Slf4j
 public class ChannelExplorer {
-    private static final Logger log = LoggerFactory.getLogger(ChannelExplorer.class);
     private VideoLinkExtractor extractor;
     private String defaultChannel;
     private static final String LINK_REGEX = "\\bhttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
     private static final WebClient WEB_CLIENT = WebClient.builder().baseUrl("https://t.me/s/").build();
 
     public Mono<Response> processTgChannel(String pathChannel) {
-        String selectedChannel = Objects.isNull(pathChannel) ? this.defaultChannel : pathChannel;
+        String selectedChannel = Objects.isNull(pathChannel) ? defaultChannel : pathChannel;
         Mono<String> response = WEB_CLIENT.get().uri(selectedChannel).exchangeToMono((r) -> {
             if (!r.statusCode().equals(HttpStatus.OK)) {
                 if (r.statusCode().is4xxClientError()) {
@@ -32,7 +31,7 @@ public class ChannelExplorer {
                 } else if (r.statusCode().is5xxServerError()) {
                     log.error("Server t.me not answer, {}", r.statusCode());
                 }
-                log.error("Unexpected error");
+                log.error("Unexpected error. Status {}. " , r.statusCode());
             }
             return r.bodyToMono(String.class);
         });
@@ -50,7 +49,7 @@ public class ChannelExplorer {
        if (matcher.find()) {
             String result = matcher.group();
             log.info("Found link {}", result);
-            return this.extractor.getVideoLink(result);
+            return extractor.getVideoLink(result);
         } else {
             log.error("Not found link");
             return new Response(false);
