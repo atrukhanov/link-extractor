@@ -10,6 +10,10 @@ jobs:
       - name: Set up GraalVM JDK 17
         run: |
           bash <(curl -sL https://get.graalvm.org/jdk)
+          cd graalvm-*
+          export JAVA_HOME=$(pwd)
+          export PATH=$JAVA_HOME/bin:$PATH
+          cd -
       - name: Build project
         run: mvn package -Pnative
       - name: Get release version
