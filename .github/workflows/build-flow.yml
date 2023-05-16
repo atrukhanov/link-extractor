@@ -14,6 +14,7 @@ jobs:
           export JAVA_HOME=$(pwd)
           export PATH=$JAVA_HOME/bin:$PATH
           cd -
+          mvn --version
       - name: Build project
         run: mvn package -Pnative
       - name: Get release version
