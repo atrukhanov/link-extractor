@@ -7,25 +7,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'corretto'
+      - name: Set up GraalVM JDK 17
+        run: |
+          bash <(curl -sL https://get.graalvm.org/jdk)
       - name: Build project
-        run: mvn package
-      - name: Create custom jre
-        run: >-
-          jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
-          --no-man-pages --output jre --add-modules $(cat jre-deps.info)
+        run: mvn package -Pnative
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
-        run: |
-          cp target/extractor-*.jar .
-          zip -r extractor-${{env.RELEASE_VERSION}}.zip jre extractor-start.sh extractor-*.jar application.yml install-yt-dlp.sh
-      - name: Create Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: extractor-${{env.RELEASE_VERSION}}.zip
-          tag: ${{env.RELEASE_VERSION}}
+        run: ls target -s
