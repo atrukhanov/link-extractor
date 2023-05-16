@@ -7,16 +7,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Set up GraalVM JDK 17
+      - name: Setup GraalVM JDK 17
         run: |
           bash <(curl -sL https://get.graalvm.org/jdk)
+      - name: Build project
+        run: |
           cd graalvm-*
           export JAVA_HOME=$(pwd)
           export PATH=$JAVA_HOME/bin:$PATH
-          echo ${{env}}
-      - name: Build project
-        run: |
-          mvn --version
+          cd -
           mvn package -Pnative
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
