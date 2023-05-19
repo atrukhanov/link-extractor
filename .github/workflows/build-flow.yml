@@ -12,11 +12,14 @@ jobs:
           bash <(curl -sL https://get.graalvm.org/jdk)
       - name: Build project
         run: |
-          cd graalvm-*
-          export JAVA_HOME=$(pwd)
+          export GRAAL_VM=graalvm
+          mv graalvm-* $GRAAL_VM
+          export JAVA_HOME=$(pwd)/$GRAAL_VM
           export PATH=$JAVA_HOME/bin:$PATH
-          cd -
-          mvn package -Pnative
+          mvn --version
+          echo $GITHUB_ENV
+          echo "${{toJSON(env)}}"
+#          mvn package -Pnative
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
