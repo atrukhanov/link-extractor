@@ -15,8 +15,8 @@ jobs:
           mv graalvm-* $GRAAL_VM
           export JAVA_HOME=$(pwd)/$GRAAL_VM
           export PATH=$JAVA_HOME/bin:$PATH
-          ls target -s
           mvn package -Pnative
+          ls target -s
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
