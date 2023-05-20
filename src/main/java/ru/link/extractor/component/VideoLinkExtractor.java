@@ -20,6 +20,7 @@ public class VideoLinkExtractor {
 
     private Integer maxAttempts;
     private Long waitPeriod;
+
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 
     public Response getVideoLink(String link) {
@@ -40,6 +41,7 @@ public class VideoLinkExtractor {
                     counter.countDown();
                     throw new RuntimeException(e);
                 }
+
             }, Duration.ofMillis(waitPeriod));
             counter.await(maxAttempts * waitPeriod, TimeUnit.MILLISECONDS);
             future.cancel(true);
