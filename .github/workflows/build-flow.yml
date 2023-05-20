@@ -2,30 +2,28 @@ name: Building a bundle from project
 on: workflow_dispatch
 jobs:
   building-bundle:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v3
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'corretto'
+      - name: Setup GraalVM JDK 17
+        run: bash <(curl -sL https://get.graalvm.org/jdk)
       - name: Build project
-        run: mvn package
-      - name: Create custom jre
-        run: >-
-          jlink --verbose --compress 2 --strip-java-debug-attributes --no-header-files
-          --no-man-pages --output jre --add-modules $(cat jre-deps.info)
+        run: |
+          export GRAAL_VM=graalvm
+          mv graalvm-* $GRAAL_VM
+          export JAVA_HOME=$(pwd)/$GRAAL_VM
+          export PATH=$JAVA_HOME/bin:$PATH
+          mvn package -Pnative
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
         run: |
-          cp target/extractor-*.jar .
-          zip -r extractor-${{env.RELEASE_VERSION}}.zip jre extractor-start.sh extractor-*.jar application.yml install-yt-dlp.sh
+          mv target/extractor yt-dlp-endpointer
+          zip -r yt-dlp-endpointer-linux-${{env.RELEASE_VERSION}}.zip yt-dlp-endpointer
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: extractor-${{env.RELEASE_VERSION}}.zip
+          artifacts: yt-dlp-endpointer-linux-${{env.RELEASE_VERSION}}.zip
           tag: ${{env.RELEASE_VERSION}}

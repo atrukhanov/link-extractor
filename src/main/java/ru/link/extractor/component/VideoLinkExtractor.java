@@ -19,7 +19,8 @@ import ru.link.extractor.model.Response;
 public class VideoLinkExtractor {
 
     private Integer maxAttempts;
-    private Long backOffPolicy;
+    private Long waitPeriod;
+
     private final ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
 
     public Response getVideoLink(String link) {
@@ -40,8 +41,9 @@ public class VideoLinkExtractor {
                     counter.countDown();
                     throw new RuntimeException(e);
                 }
-            }, Duration.ofMillis(backOffPolicy));
-            counter.await(maxAttempts * backOffPolicy, TimeUnit.MILLISECONDS);
+
+            }, Duration.ofMillis(waitPeriod));
+            counter.await(maxAttempts * waitPeriod, TimeUnit.MILLISECONDS);
             future.cancel(true);
             return isLinkExist.get()
                     ? new Response(true, (new String(inputStream.readAllBytes(), StandardCharsets.US_ASCII)).replaceFirst(String.valueOf('\n'), ""))

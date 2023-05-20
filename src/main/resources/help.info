@@ -1,0 +1,13 @@
+Usage: extractor [options]
+
+Example: extractor --port=8080 --default-channel=durov
+
+Options:
+  --port                    port for embedded server. Default 8080
+
+  --max-attempts            max count for attempts read data from yt-dlp.
+                            when it processing link. Default 2
+
+  --wait-period             wait time between attempts in ms. Default 6000
+
+  --default-channel         default channel if request not have it in path. Default durov

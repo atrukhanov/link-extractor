@@ -1,0 +1,5 @@
+default:
+  port: 8080
+  max-attempts: 2
+  wait-period: 6000
+  channel: "durov"
