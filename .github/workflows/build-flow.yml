@@ -8,19 +8,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup GraalVM JDK 17
-        run: |
-          bash <(curl -sL https://get.graalvm.org/jdk)
+        run: bash <(curl -sL https://get.graalvm.org/jdk)
       - name: Build project
         run: |
           export GRAAL_VM=graalvm
           mv graalvm-* $GRAAL_VM
           export JAVA_HOME=$(pwd)/$GRAAL_VM
           export PATH=$JAVA_HOME/bin:$PATH
-          mvn --version
-          echo $GITHUB_ENV
-          echo "${{toJSON(env)}}"
-#          mvn package -Pnative
+          ls target -s
+          mvn package -Pnative
       - name: Get release version
         run: echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       - name: Archive artifacts
-        run: ls target -s
+        run: |
+          mv target/extractor yt-dlp-endpointer
+          zip -r yt-dlp-endpointer-linux-${{env.RELEASE_VERSION}}.zip yt-dlp-endpointer
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: yt-dlp-endpointer-linux-${{env.RELEASE_VERSION}}.zip
+          tag: ${{env.RELEASE_VERSION}}
